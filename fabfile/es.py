@@ -1,7 +1,10 @@
 from __future__ import unicode_literals
-import datetime
+from datetime import date
+from datetime import datetime
+from datetime import timedelta
 import logging
 import urlparse
+import requests
 
 from fabric.api import task, run
 
@@ -10,6 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 @task
+@schedule('0 11 * * *')
 def optimize(target=None, base_url='http://localhost:9200'):
     """Optimize ES index
 
@@ -47,3 +51,29 @@ def optimize(target=None, base_url='http://localhost:9200'):
         )
         logger.debug('POSTing to %s', url)
         run('curl -XPOST {}'.format(url))
+
+@task
+@schedule('0 11 * * *')
+def purge_outdated(max_age_days=45):
+    """Purge outdated logs"""
+    if max_age_days < 30:
+        raise Exception("ERROR: Refusing to delete logs less than 30 days old")
+
+    d = date.today() - timedelta(days=max_age_days)
+    cutoff = "log-{}".format(d.strftime('%Y%m%d'))
+    indexes = []
+    indices = run('ls /mnt/search/elasticsearch/elasticsearch/nodes/0/indices').split()
+    indices = filter(lambda index: index < cutoff, indices)
+    indexes.extend(indices)
+    # remove each old index from es
+    errors = False
+    for i in indices:
+        uri = "http://localhost:9200/{}".format(i)
+        logger.info('Deleting %s index from es', i)
+        r = requests.delete(uri)
+        if r.status_code != requests.codes.ok:
+            errors = True
+            logger.info("Unable to delete %s index from es".format(i))
+
+    if errors:
+        raise Exception("Errors occurred while deleting indexes!")
