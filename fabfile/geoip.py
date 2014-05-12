@@ -9,6 +9,8 @@ import requests
 from fabric.api import task, run
 from fabfile.utils import schedule
 
+from fabric_rundeck import cron
+
 from infra import awscli
 
 logger = logging.getLogger(__name__)
@@ -27,8 +29,8 @@ def md5sum(filename, blocksize=65536):
     return hash.hexdigest()
 
 
+@cron('0 4 7 * *')
 @task
-@schedule('0 4 7 * *')
 def update(url=GEO_DATABASE_URL,
            s3_bucket=S3_BUCKET_NAME,
            aws_credentials=None):

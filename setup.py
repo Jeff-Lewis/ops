@@ -24,6 +24,7 @@ setup(
     url='https://github.com/balanced/ops',
     install_requires=[
         'fabric>=1.8,<2.0',
+        'fabric_rundeck==1.2',
         'crontab==0.18',
         'requests==2.2.1'
     ],

@@ -7,6 +7,8 @@ import sys
 from fabric.api import task, run
 from fabfile.utils import schedule
 
+from fabric_rundeck import cron
+
 from infra import awscli
 
 logger = logging.getLogger(__name__)
@@ -22,8 +24,8 @@ class ArgumentError(ValueError):
 aws = awscli._AWSCli()
 
 
+@cron('30 * * * *')
 @task
-@schedule('30 * * * *')
 def archive(s3_bucket_name,
             paths,
             reap_threshold=15,
