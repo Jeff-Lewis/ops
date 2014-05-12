@@ -9,11 +9,13 @@ import requests
 from fabric.api import task, run
 from fabfile.utils import schedule
 
+from fabric_rundeck import cron
+
 logger = logging.getLogger(__name__)
 
 
+@cron('0 11 * * *')
 @task
-@schedule('0 11 * * *')
 def optimize(target=None, base_url='http://localhost:9200'):
     """Optimize ES index
 
@@ -52,8 +54,9 @@ def optimize(target=None, base_url='http://localhost:9200'):
         logger.debug('POSTing to %s', url)
         run('curl -XPOST {}'.format(url))
 
+
+@cron('0 11 * * *')
 @task
-@schedule('0 11 * * *')
 def purge_outdated(max_age_days=45):
     """Purge outdated logs"""
     if max_age_days < 30:
