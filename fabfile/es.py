@@ -7,7 +7,7 @@ import urlparse
 import requests
 
 from fabric.api import task, run
-
+from fabfile.utils import schedule
 
 logger = logging.getLogger(__name__)
 
