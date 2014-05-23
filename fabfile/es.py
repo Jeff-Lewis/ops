@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 @cron('0 11 * * *')
 @task
-def optimize(target=None, base_url='http://localhost:9200'):
+def optimize(target='', base_url='http://localhost:9200'):
     """Optimize ES index
 
     """
@@ -27,7 +27,7 @@ def optimize(target=None, base_url='http://localhost:9200'):
         'print datetime.date.today().toordinal()"'
     ))
     # default to optimize yesterday log
-    if target is None:
+    if not target:
         yesterday = datetime.date.fromordinal(today_toordinal - 1)
         yesterday_str = yesterday.strftime('%Y%m%d')
         monthonly = yesterday.strftime('%Y%m')
@@ -57,8 +57,10 @@ def optimize(target=None, base_url='http://localhost:9200'):
 
 @cron('0 11 * * *')
 @task
-def purge_outdated(max_age_days=45):
+def purge_outdated(max_age_days='45'):
     """Purge outdated logs"""
+    # rundeck passes args as strings
+    max_age_days = int(max_age_days)
     if max_age_days < 30:
         raise Exception("ERROR: Refusing to delete logs less than 30 days old")
 

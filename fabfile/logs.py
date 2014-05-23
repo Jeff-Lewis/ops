@@ -28,14 +28,17 @@ aws = awscli._AWSCli()
 @task
 def archive(s3_bucket_name,
             paths,
-            reap_threshold=15,
-            ripe_threshold=1,
+            reap_threshold='15',
+            ripe_threshold='1',
             aws_credentials=None,
             verbose=False):
     """
     Archives {host}/{date} bucketed logs to S3. Thresholds are in day units.
 
     """
+    # rundeck passes args as strings
+    reap_threshold = int(reap_threshold)
+    ripe_threshold = int(ripe_threshold)
     if not paths or not paths.split(','):
         raise ArgumentError(
             r"paths should be a string -- separated by commas "

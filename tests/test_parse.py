@@ -95,6 +95,7 @@ def visit(c, path=[]):
 
 class TestParseFabfile(unittest.TestCase):
 
+    @unittest.skip('schedule not used any more')
     def test_parse_schedule_from_logs_archive(self):
         callables = load_fabfile(find_fabfile(['fabfile/logs.py']))[1]
         visited = visit(callables)
