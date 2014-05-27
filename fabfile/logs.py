@@ -26,7 +26,7 @@ aws = awscli._AWSCli()
 
 
 @cron('30 * * * *')
-@roles('logs')
+@roles('log')
 @task
 def archive(s3_bucket_name,
             paths,
