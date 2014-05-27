@@ -6,6 +6,7 @@ import sys
 
 from fabric.api import task, run
 from fabfile.utils import schedule
+from fabric.decorators import roles
 
 from fabric_rundeck import cron
 
@@ -25,6 +26,7 @@ aws = awscli._AWSCli()
 
 
 @cron('30 * * * *')
+@roles('logs')
 @task
 def archive(s3_bucket_name,
             paths,

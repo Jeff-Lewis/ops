@@ -8,6 +8,7 @@ import requests
 
 from fabric.api import task, run
 from fabfile.utils import schedule
+from fabric.decorators import roles
 
 from fabric_rundeck import cron
 
@@ -15,6 +16,7 @@ logger = logging.getLogger(__name__)
 
 
 @cron('0 11 * * *')
+@roles('es')
 @task
 def optimize(target='', base_url='http://localhost:9200'):
     """Optimize ES index
@@ -56,6 +58,7 @@ def optimize(target='', base_url='http://localhost:9200'):
 
 
 @cron('0 11 * * *')
+@roles('es')
 @task
 def purge_outdated(max_age_days='45'):
     """Purge outdated logs"""
