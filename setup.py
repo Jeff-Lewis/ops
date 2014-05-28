@@ -27,7 +27,7 @@ setup(
         'fabric_rundeck==1.2',
         'crontab==0.18',
         'requests==2.2.1',
-        'pychef<0.3',
+        'boto<2.29.0',
     ],
     packages=find_packages(),
     tests_require=tests_require,

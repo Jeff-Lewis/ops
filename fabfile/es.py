@@ -4,10 +4,9 @@ from datetime import datetime
 from datetime import timedelta
 import logging
 import urlparse
-import requests
 
-from fabric.api import task, run, env
-from fabfile.utils import schedule
+from fabric.api import task, run, env, hosts
+from fabfile.utils import schedule, find_host
 from fabric.decorators import roles
 
 from fabric_rundeck import cron
@@ -15,35 +14,13 @@ from fabric_rundeck import cron
 logger = logging.getLogger(__name__)
 
 
-def choose_es():
-    "Hack as es appears to not be using the new chef"
-    # this is copied from /etc/hosts on balanced-nat-01
-    hosts = {
-        '10.3.29.14',  # balanced-es-10
-        '10.3.28.15',  # balanced-es-11
-        '10.3.29.15',  # balanced-es-12
-        '10.3.28.16',  # balanced-es-13
-        '10.3.28.20',  # balanced-es-prod-01
-        '10.3.29.20',  # balanced-es-prod-02
-        '10.3.28.40',  # balanced-es-test-01
-        '10.3.29.40',  # balanced-es-test-02
-    }
-    for host in hosts:
-        env.hosts = [host]
-        try:
-            run('echo hi')
-            return host
-        except:
-            pass
-
-
 @cron('0 11 * * *')
+@hosts(find_host('balanced-es-1'))
 @task
 def optimize(target='', base_url='http://localhost:9200'):
     """Optimize ES index
 
     """
-    choose_es()
     indexes = []
     # get today toordinal from remote
     today_toordinal = int(run(
@@ -52,7 +29,7 @@ def optimize(target='', base_url='http://localhost:9200'):
     ))
     # default to optimize yesterday log
     if not target:
-        yesterday = datetime.date.fromordinal(today_toordinal - 1)
+        yesterday = datetime.fromordinal(today_toordinal - 1)
         yesterday_str = yesterday.strftime('%Y%m%d')
         monthonly = yesterday.strftime('%Y%m')
         logger.info('Optimizing yesterday %s logs', yesterday)
@@ -80,10 +57,10 @@ def optimize(target='', base_url='http://localhost:9200'):
 
 
 @cron('0 11 * * *')
+@hosts(find_host('balanced-es-1'))
 @task
-def purge_outdated(max_age_days='45'):
+def purge_outdated(max_age_days='45', hosts='balanced-es-1'):
     """Purge outdated logs"""
-    choose_es()
     # rundeck passes args as strings
     max_age_days = int(max_age_days)
     if max_age_days < 30:
@@ -100,10 +77,4 @@ def purge_outdated(max_age_days='45'):
     for i in indices:
         uri = "http://localhost:9200/{}".format(i)
         logger.info('Deleting %s index from es', i)
-        r = requests.delete(uri)
-        if r.status_code != requests.codes.ok:
-            errors = True
-            logger.info("Unable to delete %s index from es".format(i))
-
-    if errors:
-        raise Exception("Errors occurred while deleting indexes!")
+        print('curl -XDELETE {} -f'.format(uri))
