@@ -4,8 +4,8 @@ import logging
 import os
 import sys
 
-from fabric.api import task, run
-from fabfile.utils import schedule
+from fabric.api import task, run, hosts
+from fabfile.utils import schedule, find_hosts
 from fabric.decorators import roles
 
 from fabric_rundeck import cron
@@ -26,7 +26,7 @@ aws = awscli._AWSCli()
 
 
 @cron('30 * * * *')
-@roles('log')
+@hosts(find_hosts('log-prod'))
 @task
 def archive(s3_bucket_name,
             paths,

@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 from fabric.api import env
 import boto.ec2
 
+
 def schedule(crontab):
     def annotate_function(func):
         setattr(func, 'schedule', crontab)
