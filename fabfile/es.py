@@ -4,10 +4,10 @@ from datetime import datetime
 from datetime import timedelta
 import logging
 import urlparse
-import requests
 
-from fabric.api import task, run
-from fabfile.utils import schedule
+from fabric.api import task, run, env, hosts
+from fabfile.utils import schedule, find_host
+from fabric.decorators import roles
 
 from fabric_rundeck import cron
 
@@ -15,8 +15,9 @@ logger = logging.getLogger(__name__)
 
 
 @cron('0 11 * * *')
+@hosts(find_host('balanced-es-1'))
 @task
-def optimize(target=None, base_url='http://localhost:9200'):
+def optimize(target='', base_url='http://localhost:9200'):
     """Optimize ES index
 
     """
@@ -27,8 +28,8 @@ def optimize(target=None, base_url='http://localhost:9200'):
         'print datetime.date.today().toordinal()"'
     ))
     # default to optimize yesterday log
-    if target is None:
-        yesterday = datetime.date.fromordinal(today_toordinal - 1)
+    if not target:
+        yesterday = datetime.fromordinal(today_toordinal - 1)
         yesterday_str = yesterday.strftime('%Y%m%d')
         monthonly = yesterday.strftime('%Y%m')
         logger.info('Optimizing yesterday %s logs', yesterday)
@@ -56,9 +57,12 @@ def optimize(target=None, base_url='http://localhost:9200'):
 
 
 @cron('0 11 * * *')
+@hosts(find_host('balanced-es-1'))
 @task
-def purge_outdated(max_age_days=45):
+def purge_outdated(max_age_days='45', hosts='balanced-es-1'):
     """Purge outdated logs"""
+    # rundeck passes args as strings
+    max_age_days = int(max_age_days)
     if max_age_days < 30:
         raise Exception("ERROR: Refusing to delete logs less than 30 days old")
 
@@ -73,10 +77,4 @@ def purge_outdated(max_age_days=45):
     for i in indices:
         uri = "http://localhost:9200/{}".format(i)
         logger.info('Deleting %s index from es', i)
-        r = requests.delete(uri)
-        if r.status_code != requests.codes.ok:
-            errors = True
-            logger.info("Unable to delete %s index from es".format(i))
-
-    if errors:
-        raise Exception("Errors occurred while deleting indexes!")
+        print('curl -XDELETE {} -f'.format(uri))

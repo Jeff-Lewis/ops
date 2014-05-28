@@ -4,8 +4,9 @@ import logging
 import os
 import sys
 
-from fabric.api import task, run
-from fabfile.utils import schedule
+from fabric.api import task, run, hosts
+from fabfile.utils import schedule, find_hosts
+from fabric.decorators import roles
 
 from fabric_rundeck import cron
 
@@ -25,17 +26,21 @@ aws = awscli._AWSCli()
 
 
 @cron('30 * * * *')
+@hosts(find_hosts('log-prod'))
 @task
 def archive(s3_bucket_name,
             paths,
-            reap_threshold=15,
-            ripe_threshold=1,
+            reap_threshold='15',
+            ripe_threshold='1',
             aws_credentials=None,
             verbose=False):
     """
     Archives {host}/{date} bucketed logs to S3. Thresholds are in day units.
 
     """
+    # arguments are passed as string
+    reap_threshold = int(reap_threshold)
+    ripe_threshold = int(ripe_threshold)
     if not paths or not paths.split(','):
         raise ArgumentError(
             r"paths should be a string -- separated by commas "
