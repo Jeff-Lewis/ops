@@ -38,7 +38,7 @@ def archive(s3_bucket_name,
     Archives {host}/{date} bucketed logs to S3. Thresholds are in day units.
 
     """
-    # rundeck passes args as strings
+    # arguments are passed as string
     reap_threshold = int(reap_threshold)
     ripe_threshold = int(ripe_threshold)
     if not paths or not paths.split(','):
