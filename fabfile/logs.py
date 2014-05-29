@@ -26,7 +26,7 @@ aws = awscli._AWSCli()
 
 
 @cron('30 * * * *')
-@hosts(find_hosts('log-prod'))
+@hosts(*find_hosts('log-prod'))
 @task
 def archive(s3_bucket_name,
             paths,

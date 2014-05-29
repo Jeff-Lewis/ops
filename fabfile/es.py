@@ -59,7 +59,7 @@ def optimize(target='', base_url='http://localhost:9200'):
 @cron('0 11 * * *')
 @hosts(find_host('balanced-es-1'))
 @task
-def purge_outdated(max_age_days='45', hosts='balanced-es-1'):
+def purge_outdated(max_age_days='45'):
     """Purge outdated logs"""
     # rundeck passes args as strings
     max_age_days = int(max_age_days)
