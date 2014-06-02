@@ -6,7 +6,7 @@ import sys
 import hashlib
 import requests
 
-from fabric.api import task, run
+from fabric.api import task, run, hosts
 from fabfile.utils import schedule
 
 from fabric_rundeck import cron
