@@ -67,8 +67,10 @@ def update(url=GEO_DATABASE_URL,
     aws.ensure_awscli_installed()
     aws.reconfigure(aws_credentials)
 
-    aws('s3 mv {src} {dest}'.format(src=geoip_archive, dest=geoip_loc))
-    aws('s3 mv {src} {dest}'.format(src=md5sums_archive, dest=md5sums_loc))
+    aws('s3 mv {src} {dest} --region=us-west-1'.format(
+        src=geoip_archive, dest=geoip_loc))
+    aws('s3 mv {src} {dest} --region=us-west-1'.format(
+        src=md5sums_archive, dest=md5sums_loc))
 
     # cleanup
     logger.info('Cleaning up')
