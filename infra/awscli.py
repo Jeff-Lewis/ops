@@ -7,8 +7,9 @@ from fabric.operations import sudo
 
 class _AWSCli(object):
 
-    def __init__(self, credentials=None):
+    def __init__(self, credentials=None, executor=None):
         self._credentials = credentials
+        self.executor = executor or run
 
     def reconfigure(self, credentials):
         self._credentials = credentials
@@ -26,13 +27,12 @@ class _AWSCli(object):
 
         return creds
 
-    @staticmethod
-    def ensure_awscli_installed():
+    def ensure_awscli_installed(self):
         with settings(warn_only=True):
-            result = run('aws --version')
+            result = self.executor('aws --version')
             if result.succeeded:
                 return
-            result = sudo('pip install awscli')
+            result = self.executor('sudo pip install awscli')
             if result.succeeded:
                 return
             raise EnvironmentError('AWS CLI must be installed via hosts')
@@ -41,6 +41,6 @@ class _AWSCli(object):
         if not cmd.startswith('aws '):
             cmd = 'aws ' + cmd
 
-        executor = sudo if as_sudo else run
+        executor = sudo if as_sudo else self.executor
         with shell_env(**self.credentials):
             return executor(cmd)

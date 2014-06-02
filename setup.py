@@ -28,6 +28,7 @@ setup(
         'crontab==0.18',
         'requests==2.2.1',
         'boto<2.29.0',
+        'awscli',
     ],
     packages=find_packages(),
     tests_require=tests_require,

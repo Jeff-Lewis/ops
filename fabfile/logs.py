@@ -7,6 +7,8 @@ import sys
 from fabric.api import task, run, hosts
 from fabfile.utils import schedule, find_hosts
 from fabric.decorators import roles
+from fabric.operations import sudo
+
 
 from fabric_rundeck import cron
 
@@ -158,4 +160,4 @@ class BucketedLog(object):
 
     def remove(self):
         logger.debug('removing %s', self.path)
-        run('rm -fr {}'.format(self.path))
+        sudo('rm -fr {}'.format(self.path))

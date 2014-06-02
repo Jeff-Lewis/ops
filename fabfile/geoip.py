@@ -6,7 +6,7 @@ import sys
 import hashlib
 import requests
 
-from fabric.api import task, run, hosts
+from fabric.api import task, run, hosts, local
 from fabfile.utils import schedule
 
 from fabric_rundeck import cron
@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 GEO_DATABASE_URL = "http://geolite.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz"
 S3_BUCKET_NAME = "balanced.geoip"
 
-aws = awscli._AWSCli()
+aws = awscli._AWSCli(executor=local)
 
 
 def md5sum(filename, blocksize=65536):
@@ -38,6 +38,7 @@ def update(url=GEO_DATABASE_URL,
     """
     Update GeoLiteCity Database
     """
+
     geoip_archive = os.path.join('/tmp', 'GeoLiteCity.dat.gz')
     geoip_loc = 's3://{bucket}/{key}'.format(bucket=s3_bucket,
                                              key=os.path.basename(geoip_archive))
