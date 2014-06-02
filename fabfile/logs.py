@@ -28,8 +28,8 @@ aws = awscli._AWSCli()
 @cron('30 * * * *')
 @hosts(*find_hosts('log-prod'))
 @task
-def archive(s3_bucket_name,
-            paths,
+def archive(s3_bucket_name='balanced.log',
+            paths='/mnt/log/',
             reap_threshold='15',
             ripe_threshold='1',
             aws_credentials=None,

@@ -30,6 +30,7 @@ def md5sum(filename, blocksize=65536):
 
 
 @cron('0 4 7 * *')
+@hosts('localhost')
 @task
 def update(url=GEO_DATABASE_URL,
            s3_bucket=S3_BUCKET_NAME,
