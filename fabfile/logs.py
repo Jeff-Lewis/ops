@@ -66,6 +66,8 @@ def archive(s3_bucket_name='balanced.log',
             elif log.expired:
                 logger.debug('%s is expired, removing', log.path)
                 log.remove()
+        sudo('find {path} -maxdepth 1 -type d -empty -delete'.format(
+            path=path))
 
 
 def setup_logging(verbose):
