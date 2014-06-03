@@ -27,7 +27,7 @@ class ArgumentError(ValueError):
 aws = awscli._AWSCli()
 
 
-@cron('30 * * * *')
+@cron('30 0 * * *')
 @hosts(*find_hosts('log-prod'))
 @task
 def archive(s3_bucket_name='balanced.log',
