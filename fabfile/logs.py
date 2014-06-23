@@ -32,7 +32,7 @@ aws = awscli._AWSCli()
 @task
 def archive(s3_bucket_name='balanced.log',
             paths='/mnt/log/',
-            reap_threshold='15',
+            reap_threshold='30',
             ripe_threshold='1',
             aws_credentials=None,
             verbose=False):
